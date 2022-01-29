@@ -24,7 +24,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ListaFilmesActivity extends AppCompatActivity {
+public class ListaFilmesActivity extends AppCompatActivity
+        implements ListaFilmesContrato.ListaFilmesView  {
 
     private RecyclerView recyclerFilmes;
     private ListaFilmesAdapter filmesAdapter;
@@ -38,8 +39,8 @@ public class ListaFilmesActivity extends AppCompatActivity {
 
         configuraAdapter();
 
-        obtemFilmes();
-
+        ListaFilmesContrato.ListaFilmesPresenter presenter = new ListaFilmesPresenter(this);
+        presenter.obtemFilmes();
 
     }
 
@@ -55,31 +56,16 @@ public class ListaFilmesActivity extends AppCompatActivity {
         recyclerFilmes.setAdapter(filmesAdapter);
     }
 
-    private void obtemFilmes() {
-        ApiService.getInstanceService()
-                .obterFilmesPopulares("89fe901b340d6c7a0169d5e930bacb38")
-                .enqueue(new Callback<FilmesResult>() {
-                    @Override
-                    public void onResponse(Call<FilmesResult> call, Response<FilmesResult> response) {
 
-                        if (response.isSuccessful()) {
-                           final List<Filme> filmes = FilmesMapper.deResponseParaDominio(response.body().getListaFilmes());
-                            filmesAdapter.setListaFilmes(filmes);
-                        } else{
-                            mostraErro();
-                        }
 
-                    }
 
-                    @Override
-                    public void onFailure(Call<FilmesResult> call, Throwable t) {
-                        mostraErro();
-                    }
-                });
+    @Override
+    public void mostraFilmes(List<Filme> listaFilmes) {
+        filmesAdapter.setListaFilmes(listaFilmes);
     }
-    
-    
-    private void mostraErro(){
+
+    @Override
+    public void mostraErro(){
         Toast.makeText(this, "Erro ao consultar API", Toast.LENGTH_SHORT).show();
     }
 
